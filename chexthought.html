@@ -3,11 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta
-    name="description"
-    content="CheXthought: A Global Human Chain-of-Thought and Spatial Reasoning Dataset for Chest X-Ray Interpretation"
-  />
-  <title>CheXthought: A Global Human Chain-of-Thought and Spatial Reasoning Dataset for Chest X-Ray Interpretation</title>
+  <meta name="description" content="CheXthought: A Global Human Chain-of-Thought and Spatial Reasoning Dataset for Chest X-Ray Interpretation" />
+  <title>CheXthought</title>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css" />
@@ -15,554 +12,248 @@
   <script src="https://d3js.org/topojson.v3.min.js"></script>
 
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    *{margin:0;padding:0;box-sizing:border-box}
 
-    :root {
-      --blue: #546ccc;
-      --blue-light: #6c8cdc;
-      --blue-soft: #849ce4;
-      --mauve: #a1acd9;
-      --sky: #86a4c2;
-      --teal: #7ac1b9;
-      --green: #b1c480;
-      --pink: #f87190;
-      --pink-soft: #f48a95;
-      --rose: #f0a29b;
-      --crimson: #e04c60;
+    :root{
+      --blue:#546ccc;--blue-light:#6c8cdc;--blue-soft:#849ce4;
+      --mauve:#a1acd9;--sky:#86a4c2;--teal:#7ac1b9;--green:#b1c480;
+      --pink:#f87190;--pink-soft:#f48a95;--rose:#f0a29b;--crimson:#e04c60;
+      --ink:#111;--stroke:2px;--radius:6px;
+      --shadow:0 4px 8px rgba(0,0,0,0.08);
+      --paper:#fff;--paper2:#f6f6f6;--paper3:#fbfbfb;
+      --font:Arial,Helvetica,sans-serif;
     }
 
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      color: #1a1a2e;
-      line-height: 1.6;
-      min-height: 100vh;
+    body{
+      font-family:Arial,Helvetica,sans-serif;
+      color:#1a1a2e;line-height:1.6;min-height:100vh;
       background:
-        radial-gradient(ellipse 80% 60% at 15% 20%, rgba(84,108,204,0.08) 0%, transparent 60%),
-        radial-gradient(ellipse 70% 50% at 85% 15%, rgba(248,113,144,0.07) 0%, transparent 55%),
-        radial-gradient(ellipse 60% 40% at 50% 50%, rgba(122,193,185,0.05) 0%, transparent 50%),
-        radial-gradient(ellipse 80% 60% at 80% 80%, rgba(160,172,217,0.07) 0%, transparent 55%),
-        radial-gradient(ellipse 70% 50% at 20% 85%, rgba(240,162,155,0.06) 0%, transparent 50%),
-        linear-gradient(160deg, #f0f2fb 0%, #faf5f7 25%, #f4f0f8 50%, #f0f5fa 75%, #faf2f4 100%);
-      background-attachment: fixed;
+        radial-gradient(ellipse 80% 60% at 15% 20%,rgba(84,108,204,.08) 0%,transparent 60%),
+        radial-gradient(ellipse 70% 50% at 85% 15%,rgba(248,113,144,.07) 0%,transparent 55%),
+        radial-gradient(ellipse 60% 40% at 50% 50%,rgba(122,193,185,.05) 0%,transparent 50%),
+        radial-gradient(ellipse 80% 60% at 80% 80%,rgba(160,172,217,.07) 0%,transparent 55%),
+        radial-gradient(ellipse 70% 50% at 20% 85%,rgba(240,162,155,.06) 0%,transparent 50%),
+        linear-gradient(160deg,#f0f2fb 0%,#faf5f7 25%,#f4f0f8 50%,#f0f5fa 75%,#faf2f4 100%);
+      background-attachment:fixed;
     }
 
-    body::before,
-    body::after {
-      content: "";
-      position: fixed;
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 0;
-      filter: blur(80px);
+    body::before,body::after{
+      content:"";position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(80px);
     }
+    body::before{width:500px;height:500px;top:-100px;left:-100px;background:radial-gradient(circle,rgba(84,108,204,.06) 0%,transparent 70%);animation:floatOrb1 25s ease-in-out infinite}
+    body::after{width:400px;height:400px;bottom:-50px;right:-50px;background:radial-gradient(circle,rgba(248,113,144,.06) 0%,transparent 70%);animation:floatOrb2 20s ease-in-out infinite}
 
-    body::before {
-      width: 500px;
-      height: 500px;
-      top: -100px;
-      left: -100px;
-      background: radial-gradient(circle, rgba(84,108,204,0.06) 0%, transparent 70%);
-      animation: floatOrb1 25s ease-in-out infinite;
-    }
+    @keyframes floatOrb1{0%,100%{transform:translate(0,0)}50%{transform:translate(60px,40px)}}
+    @keyframes floatOrb2{0%,100%{transform:translate(0,0)}50%{transform:translate(-40px,-30px)}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 
-    body::after {
-      width: 400px;
-      height: 400px;
-      bottom: -50px;
-      right: -50px;
-      background: radial-gradient(circle, rgba(248,113,144,0.06) 0%, transparent 70%);
-      animation: floatOrb2 20s ease-in-out infinite;
-    }
+    .fade-in{opacity:0;animation:fadeUp .6s ease forwards;animation-play-state:paused}
+    .fade-in-visible{animation-play-state:running!important}
 
-    @keyframes floatOrb1 {
-      0%, 100% { transform: translate(0, 0); }
-      50% { transform: translate(60px, 40px); }
-    }
+    /* ══ HERO ══ */
+    .hero{padding:70px 24px 44px;text-align:center;position:relative;z-index:1}
+    .hero-inner{max-width:960px;margin:0 auto}
 
-    @keyframes floatOrb2 {
-      0%, 100% { transform: translate(0, 0); }
-      50% { transform: translate(-40px, -30px); }
-    }
+    .thought-bubble-wrapper{display:inline-flex;align-items:center;justify-content:center;position:relative;margin-bottom:34px;min-height:140px}
+    .thought-cloud-img{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:135px;height:auto;pointer-events:none;z-index:1;opacity:.16}
+    .pink-icon{filter:invert(59%) sepia(30%) saturate(1428%) hue-rotate(300deg) brightness(101%) contrast(95%)}
+    .thought-bubble-content{position:relative;z-index:2;padding:22px 48px}
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(18px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    .hero h1{font-size:2.6rem;font-weight:800;line-height:1.18;color:#111;animation:fadeUp .7s ease forwards}
+    .hero-subtitle{font-size:1.08rem;color:#555;max-width:720px;margin:0 auto 22px;line-height:1.6;animation:fadeUp .7s ease .05s forwards;opacity:0}
+    .authors{font-size:1.12rem;color:#444;margin-bottom:6px;line-height:1.8;animation:fadeUp .7s ease .1s forwards;opacity:0}
+    .authors span{color:#222;font-weight:600}
+    .consortium-trigger{color:var(--crimson)!important;cursor:pointer;font-weight:700!important;border-bottom:1.5px dashed var(--crimson);transition:color .2s}
+    .consortium-trigger:hover{color:var(--pink)!important}
+    .affiliations{font-size:.78rem;color:#888;max-width:800px;margin:12px auto 28px;line-height:1.7;animation:fadeUp .7s ease .15s forwards;opacity:0}
+    .affiliations sup{color:var(--blue);font-weight:700}
+    .btn-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;animation:fadeUp .7s ease .2s forwards;opacity:0}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:9px 22px;border-radius:50px;font-size:.9rem;font-weight:600;font-family:Arial,Helvetica,sans-serif;text-decoration:none;cursor:pointer;transition:all .25s ease;border:none}
+    .btn-dark{background:linear-gradient(135deg,#1a1a2e,#2d2d5e);color:#fff;box-shadow:0 2px 10px rgba(26,26,46,.15)}
+    .btn-dark:hover{transform:translateY(-2px);box-shadow:0 5px 20px rgba(26,26,46,.2)}
+    .btn-join{background:linear-gradient(135deg,var(--pink),var(--crimson));color:#fff;font-size:.9rem;padding:9px 26px;box-shadow:0 4px 18px rgba(232,69,110,.25)}
+    .btn-join:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(232,69,110,.3)}
 
-    .fade-in {
-      opacity: 0;
-      animation: fadeUp 0.6s ease forwards;
-      animation-play-state: paused;
-    }
+    /* ══ SHARED SECTIONS ══ */
+    .page-section{max-width:1200px;margin:0 auto;padding:40px 24px;position:relative;z-index:1}
+    .section{border:2px dashed rgba(140,140,170,.35);border-radius:18px;padding:38px 24px 24px;position:relative;background:rgba(255,255,255,.55);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:1;transition:box-shadow .3s ease}
+    .section:hover{box-shadow:0 8px 32px rgba(84,108,204,.07)}
+    .section-label{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(255,255,255,.95),rgba(250,248,255,.95));border:2px solid rgba(140,140,170,.3);border-radius:20px;padding:4px 22px;font-size:1.45rem;font-weight:700;letter-spacing:.1em;color:#2a2a4a;white-space:nowrap;z-index:2;box-shadow:0 2px 10px rgba(0,0,0,.04)}
 
-    .fade-in-visible {
-      animation-play-state: running !important;
-    }
+    .abstract-text{font-size:1rem;line-height:1.78;color:#3a3a5a;text-align:justify;max-width:900px;margin:0 auto}
+    .abstract-text strong{color:var(--blue);font-weight:700}
 
-    .hero {
-      padding: 70px 24px 44px;
-      text-align: center;
-      position: relative;
-      z-index: 1;
-    }
+    .figure-title{font-size:1.15rem;font-weight:700;color:#2a2a4a;text-align:center;margin-bottom:10px}
 
-    .hero-inner {
-      max-width: 960px;
-      margin: 0 auto;
-    }
+    /* ══ MAP ══ */
+    .map-frame{background:linear-gradient(135deg,#f0f4ff 0%,#faf0f3 100%);border-radius:14px;overflow:hidden;line-height:0;padding:4px}
+    .land{fill:#dfe7f7;stroke:#fff;stroke-width:.55}
+    .bubble{stroke:#fff;stroke-width:2.4}
+    .val-text{font-family:Arial,Helvetica,sans-serif;font-weight:700;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+    .leader{stroke:#7d7d7d;stroke-width:1.05;fill:none;pointer-events:none}
+    .label-bg{fill:rgba(255,255,255,.97);stroke:#d9dde2;stroke-width:.6}
+    .label-text{fill:#111;font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:12px;letter-spacing:.01em}
+    .legend-box{fill:rgba(255,255,255,.96);stroke:#b0b0b0;stroke-width:2;stroke-dasharray:6 5}
 
-    .thought-bubble-wrapper {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      margin-bottom: 34px;
-      min-height: 140px;
-    }
+    /* ══ CARDS (Dataset Construction) ══ */
+    .cards{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
+    .card{flex:1;min-width:220px;border-radius:14px;padding:18px 14px 14px;text-align:center;display:flex;flex-direction:column;align-items:center;transition:transform .25s ease,box-shadow .25s ease;backdrop-filter:blur(4px)}
+    .card:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,.06)}
+    .card-icon{height:82px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;font-size:2.6rem}
+    .card-icon img{max-height:76px;max-width:100%;object-fit:contain}
+    .card h3{font-size:.95rem;font-weight:900;text-transform:uppercase;margin-bottom:6px}
+    .card p{font-size:.85rem;line-height:1.5;color:#555}
 
-    .thought-cloud-img {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 135px;
-      height: auto;
-      pointer-events: none;
-      z-index: 1;
-      opacity: 0.16;
-    }
+    .arrow-right{display:flex;align-items:center;justify-content:center;flex:0 0 28px;color:var(--mauve)}
+    .arrow-right svg{width:22px;height:22px}
+    .arrow-down{display:flex;justify-content:center;padding:10px 0}
+    .arrow-down svg{width:28px;height:44px;color:#555}
 
-    .pink-icon {
-      filter: invert(59%) sepia(30%) saturate(1428%) hue-rotate(300deg) brightness(101%) contrast(95%);
-    }
+    /* ══ ANNOTATION PROCESS ══ */
+    .steps-row{display:flex;align-items:stretch;gap:0;overflow:visible}
+    .workflow-panel{border:1.8px dashed;border-radius:10px;padding:10px 10px 12px;display:flex;flex-direction:column;align-items:center;position:relative}
+    .wf-step-badge{position:absolute;top:-10px;left:12px;width:20px;height:20px;border-radius:50%;color:#fff;font-size:.9rem;font-weight:700;display:flex;align-items:center;justify-content:center;z-index:1}
+    .wf-title{font-size:1.05rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;margin-top:4px;text-align:center;width:100%}
+    .wf-desc{font-size:1rem;color:#111;line-height:1.55;text-align:center;margin-top:auto;padding-top:8px}
 
-    .thought-bubble-content {
-      position: relative;
-      z-index: 2;
-      padding: 22px 48px;
-    }
+    .panel-image-wrap{width:100%;height:170px;display:flex;align-items:flex-end;justify-content:center;margin-top:auto;margin-bottom:0;overflow:hidden}
+    .panel-image-wrap img{display:block;max-width:100%;max-height:100%;object-fit:contain}
 
-    .hero h1 {
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 2.6rem;
-      font-weight: 800;
-      line-height: 1.18;
-      color: #111;
-      animation: fadeUp 0.7s ease forwards;
-      margin: 0;
-    }
+    .person-scene-wrap{position:relative;display:flex;align-items:center;justify-content:center}
+    .cloud-text-overlay{position:absolute;top:17%;left:31%;width:54%;padding:4px 6px}
+    .cloud-text-overlay p{font-size:.55rem;line-height:1.2;color:#333;font-weight:700}
+    .cloud-text-overlay p strong{color:#111;font-weight:700}
 
-    .hero-subtitle {
-      font-size: 1.08rem;
-      color: #555;
-      max-width: 720px;
-      margin: 0 auto 22px;
-      line-height: 1.6;
-      animation: fadeUp 0.7s ease 0.05s forwards;
-      opacity: 0;
-    }
+    /* ── CoT elements ── */
+    .cot-stack{display:flex;flex-direction:column;gap:6px}
+    .cot-item{border-radius:5px;padding:8px 10px;border-left:5px solid;display:flex;align-items:center;gap:10px}
+    .cot-item .cot-icon{flex:0 0 22px}
+    .cot-item .cot-icon svg{width:22px;height:22px}
+    .cot-item .cot-text h4{font-size:1rem;font-weight:700;line-height:1.3}
+    .cot-pink{background:#fff0f3;border-color:#e8456e}.cot-pink h4{color:#c0213e}
+    .cot-yellow{background:#fef9e7;border-color:#d4a817}.cot-yellow h4{color:#9e7c0c}
+    .cot-green{background:#edfcf2;border-color:#34a853}.cot-green h4{color:#1d7a37}
+    .cot-blue{background:#eef4ff;border-color:#4285f4}.cot-blue h4{color:#1a5cc8}
+    .cot-purple{background:#f3eeff;border-color:#7c5cfc}.cot-purple h4{color:#5a3ac7}
+    .cot-teal{background:#e8faf6;border-color:#1aab8a}.cot-teal h4{color:#118068}
+    .cot-orange{background:#fff4eb;border-color:#e67e22}.cot-orange h4{color:#b85c0a}
 
-    .authors {
-      font-size: 1.12rem;
-      color: #444;
-      margin-bottom: 6px;
-      line-height: 1.8;
-      animation: fadeUp 0.7s ease 0.1s forwards;
-      opacity: 0;
-    }
+    /* ── Review icon ── */
+    .review-submit-icon{width:108px;height:84px;border:2px dashed #5ec490;border-radius:14px;background:#fff;position:relative;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,.04)}
+    .review-submit-icon .doc-box{width:58px;height:42px;border:1.8px solid #5ec490;border-radius:8px;background:#f8fffb;display:flex;align-items:center;justify-content:center}
+    .review-submit-icon .doc-box i{font-size:22px;color:#268a52}
+    .review-submit-icon .check-badge{position:absolute;right:14px;bottom:12px;width:26px;height:26px;border-radius:50%;background:#2e9e60;border:2px solid #fff;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.14)}
+    .review-submit-icon .check-badge i{font-size:12px;color:#fff}
+    .review-submit-label{display:flex;align-items:center;gap:6px;background:#fff;border:1.5px dashed #5ec490;border-radius:12px;padding:6px 12px}
 
-    .authors span {
-      color: #222;
-      font-weight: 600;
-    }
+    /* ── Data extraction icons ── */
+    .subsections-report{width:var(--w);height:var(--h);position:relative;display:inline-block}
+    .subsections-report .sr-sheet{position:absolute;inset:0;border:var(--stroke) solid var(--ink);border-radius:var(--radius);background:var(--paper);box-shadow:var(--shadow)}
+    .subsections-report .sr-sheet.back{box-shadow:none}
+    .subsections-report .back-1{background:var(--paper2);transform:translate(-5px,4px);opacity:.95;z-index:1}
+    .subsections-report .back-2{background:var(--paper3);transform:translate(-9px,8px);opacity:.9;z-index:0}
+    .subsections-report .sr-sheet.front{z-index:2;overflow:hidden}
+    .subsections-report .sr-pill{position:absolute;height:14px;border-radius:5px;border:var(--stroke) solid var(--ink);background:#f7f7f7;display:flex;align-items:center;padding:0 6px;font-weight:700;font-size:6px;color:var(--ink);white-space:nowrap}
+    .subsections-report .sr-pill.s1{top:7px;left:7px;width:50px;z-index:1}
+    .subsections-report .sr-pill.s2{top:22px;left:13px;width:44px;z-index:2}
+    .subsections-report .sr-pill.s3{top:37px;left:19px;width:48px;z-index:3}
+    .subsections-report .sr-pill.s4{top:52px;left:25px;width:54px;z-index:4}
 
-    .consortium-trigger {
-      color: var(--crimson) !important;
-      cursor: pointer;
-      font-weight: 700 !important;
-      border-bottom: 1.5px dashed var(--crimson);
-      transition: color 0.2s;
-    }
+    .patient-info-icon{width:var(--w);height:var(--h);position:relative;display:inline-block}
+    .patient-info-icon .pi-card{position:absolute;inset:0;border:var(--stroke) solid var(--ink);border-radius:var(--radius);background:var(--paper);box-shadow:var(--shadow)}
+    .patient-info-icon .pi-card.back{box-shadow:none}
+    .patient-info-icon .back-1{background:var(--paper2);transform:translate(-5px,4px);opacity:.95;z-index:1}
+    .patient-info-icon .back-2{background:var(--paper3);transform:translate(-9px,8px);opacity:.9;z-index:0}
+    .patient-info-icon .pi-card.front{z-index:2;display:flex;flex-direction:column;padding:6px 8px 5px;gap:4px}
+    .patient-info-icon .pi-top{display:flex;align-items:center;justify-content:space-between;gap:5px}
+    .patient-info-icon .pi-human{width:24px;height:24px;position:relative}
+    .patient-info-icon .pi-human::before{content:"";position:absolute;top:1px;left:50%;width:10px;height:10px;transform:translateX(-50%);border-radius:999px;background:var(--ink);opacity:.28}
+    .patient-info-icon .pi-human::after{content:"";position:absolute;bottom:0;left:50%;width:22px;height:12px;transform:translateX(-50%);border-radius:11px 11px 6px 6px;background:var(--ink);opacity:.2}
+    .patient-info-icon .pi-info{width:20px;height:20px;border-radius:999px;border:var(--stroke) solid var(--ink);background:#fff;display:grid;place-items:center}
+    .patient-info-icon .pi-i{font-weight:900;font-size:11px;color:var(--ink)}
+    .patient-info-icon .pi-lines{display:flex;flex-direction:column;gap:3px}
+    .patient-info-icon .pi-line{height:4px;border-radius:999px;background:var(--ink);opacity:.18}
+    .patient-info-icon .pi-line.w-85{width:85%}.patient-info-icon .pi-line.w-65{width:65%}
+    .patient-info-icon .pi-tags{display:flex;gap:3px}
+    .patient-info-icon .pi-tag{font-weight:700;font-size:6px;color:var(--ink);padding:2px 4px;border-radius:999px;border:1.5px solid var(--ink);background:#f7f7f7;line-height:1}
 
-    .consortium-trigger:hover {
-      color: var(--pink) !important;
-    }
+    /* ── Output stats ── */
+    .output-row{display:flex;gap:18px;justify-content:center;align-items:stretch;flex-wrap:wrap}
+    .output-section{flex:1;max-width:440px;border:2px dashed rgba(140,140,170,.35);border-radius:18px;padding:34px 20px 20px;position:relative;background:rgba(255,255,255,.55);backdrop-filter:blur(12px)}
+    .output-section-label{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(255,255,255,.95),rgba(250,248,255,.95));border:2px solid rgba(140,140,170,.3);border-radius:20px;padding:4px 18px;font-size:1.1rem;font-weight:700;letter-spacing:.08em;color:#2a2a4a;white-space:nowrap;z-index:2}
+    .output-card{width:100%;border-radius:12px;padding:22px 24px;display:flex;align-items:center;gap:18px;min-height:118px}
+    .output-card-icon{width:72px;height:72px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff;overflow:hidden}
+    .output-card-icon img{width:100%;height:100%;object-fit:cover}
+    .output-card-body{display:flex;flex-direction:column;gap:6px}
+    .output-num{font-size:2.35rem;font-weight:800;color:#111;line-height:1.05;letter-spacing:-.02em}
+    .output-subtext{font-size:.92rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+    .spatial-icon{width:78px;height:78px;border:1.5px solid #34a853;border-radius:18px;background:#e7f5ec;padding:2px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .spatial-icon img{width:122%;height:122%;object-fit:cover;border-radius:14px;transform:translateY(1px)}
 
-    .affiliations {
-      font-size: 0.78rem;
-      color: #888;
-      max-width: 800px;
-      margin: 12px auto 28px;
-      line-height: 1.7;
-      animation: fadeUp 0.7s ease 0.15s forwards;
-      opacity: 0;
-    }
+    /* ══ COMPARE (Report vs CoT) ══ */
+    .compare-outer{border:2px dashed rgba(140,140,170,.35);border-radius:18px;padding:38px 16px 18px;position:relative;background:rgba(255,255,255,.55);backdrop-filter:blur(12px);z-index:1}
+    .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch}
+    .col-section{border:1.8px dashed rgba(140,140,170,.35);border-radius:12px;padding:36px 12px 14px;position:relative;background:rgba(255,255,255,.7);display:flex;flex-direction:column;gap:10px}
+    .col-label{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(255,255,255,.95),rgba(250,248,255,.95));border:2px solid rgba(140,140,170,.3);border-radius:16px;padding:4px 20px;font-size:1.2rem;font-weight:700;letter-spacing:.10em;color:#2a2a4a;white-space:nowrap;z-index:2}
+    .img-card{background:#000;border-radius:9px;overflow:hidden;height:400px}
+    .img-card img{width:100%;height:100%;object-fit:contain}
+    .image-stage{position:relative;width:100%;height:100%;overflow:hidden;border-radius:9px;background:#000}
+    .image-stage img,.image-stage svg.overlay{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.1);transform-origin:center center;display:block}
+    .image-stage svg.overlay{pointer-events:none;overflow:visible}
+    .report-card{background:rgba(247,251,255,.8);border-radius:9px;padding:14px 12px 12px;box-shadow:0 1px 3px rgba(0,0,0,.03);flex:1;display:flex;flex-direction:column}
+    .report-title{font-size:1rem;font-weight:900;color:#111;margin-bottom:10px;padding-bottom:8px;border-bottom:1.5px solid #b0b0b0}
+    .legend{display:flex;flex-wrap:wrap;gap:6px 10px;margin-bottom:10px;background:rgba(255,255,255,.8);border-radius:6px;padding:6px 8px}
+    .legend-item{display:flex;align-items:center;gap:5px;font-size:.75rem;font-weight:600;color:#444;white-space:nowrap}
+    .legend-swatch{width:12px;height:8px;border-radius:2px}
+    .report-body{font-size:.88rem;line-height:1.75;color:#444}
 
-    .affiliations sup {
-      color: var(--blue);
-      font-weight: 700;
-    }
+    .hl-dd{background:#fff0f3;padding:1px 4px;border-radius:4px;border-bottom:2px solid #e8456e}
+    .hl-spatial{background:#edfcf2;padding:1px 4px;border-radius:4px;border-bottom:2px solid #34a853}
+    .hl-uncertainty{background:#f3eeff;padding:1px 4px;border-radius:4px;border-bottom:2px solid #7c5cfc}
+    .hl-reasoning{background:#fef9e7;padding:1px 4px;border-radius:4px;border-bottom:2px solid #d4a817}
+    .hl-text{background:#e8faf6;padding:1px 4px;border-radius:4px;border-bottom:2px solid #1aab8a}
+    .tag{font-weight:700;color:#5a3ac7;font-size:.72rem}
+    .swatch-dd{background:#fff0f3;border:1px solid #e8456e}
+    .swatch-spatial{background:#edfcf2;border:1px solid #34a853}
+    .swatch-text{background:#e8faf6;border:1px solid #1aab8a}
+    .swatch-uncertainty{background:#f3eeff;border:1px solid #7c5cfc}
+    .swatch-reasoning{background:#fef9e7;border:1px solid #d4a817}
+    .dot-circle{fill:#2f6de1;stroke:#fff;stroke-width:6}
+    .dot-label{fill:#fff;font-family:Arial,Helvetica,sans-serif;font-weight:900;font-size:50px;text-anchor:middle;dominant-baseline:middle}
 
-    .btn-row {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-      animation: fadeUp 0.7s ease 0.2s forwards;
-      opacity: 0;
-    }
+    /* ══ BIBTEX ══ */
+    .bibtex-block{background:linear-gradient(135deg,#1a1a2e,#2a2050);color:#a8d8a8;border-radius:12px;padding:24px;font-family:monospace;font-size:.78rem;line-height:1.7;overflow-x:auto;position:relative;box-shadow:0 4px 16px rgba(26,26,46,.15)}
+    .copy-btn{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#ccc;padding:5px 14px;border-radius:8px;cursor:pointer;font-size:.75rem;font-weight:600;transition:all .2s}
+    .copy-btn:hover{background:rgba(255,255,255,.15);color:#fff}
 
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 9px 22px;
-      border-radius: 50px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      font-family: Arial, Helvetica, sans-serif;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      border: none;
-    }
+    /* ══ MODAL ══ */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,26,46,.4);z-index:1000;justify-content:center;align-items:center;padding:24px;backdrop-filter:blur(6px)}
+    .modal-overlay.active{display:flex}
+    .modal-box{background:rgba(255,255,255,.95);backdrop-filter:blur(16px);border:2px dashed rgba(140,140,170,.35);border-radius:18px;max-width:900px;width:100%;max-height:80vh;overflow-y:auto;padding:36px 28px 28px;position:relative;box-shadow:0 16px 48px rgba(0,0,0,.1)}
+    .modal-close{position:absolute;top:12px;right:14px;width:34px;height:34px;border-radius:50%;border:2px solid rgba(140,140,170,.3);background:rgba(255,255,255,.8);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;color:#666;transition:all .2s}
+    .modal-close:hover{border-color:var(--crimson);color:var(--crimson)}
+    .modal-title{font-size:1.4rem;font-weight:700;margin-bottom:4px;color:#1a1a3e}
+    .modal-subtitle{font-size:.82rem;color:#999;margin-bottom:18px;font-weight:600;letter-spacing:.04em}
+    .consortium-names{column-count:3;column-gap:20px;font-size:.82rem;line-height:1.9;color:#555}
 
-    .btn-dark {
-      background: linear-gradient(135deg, #1a1a2e, #2d2d5e);
-      color: #fff;
-      box-shadow: 0 2px 10px rgba(26,26,46,0.15);
-    }
+    footer{text-align:center;padding:36px 24px;font-size:.82rem;color:#aaa;border-top:2px dashed rgba(140,140,170,.25);margin-top:10px;position:relative;z-index:1}
 
-    .btn-dark:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 20px rgba(26,26,46,0.2);
-    }
-
-    .btn-join {
-      background: linear-gradient(135deg, var(--pink), var(--crimson));
-      color: #fff;
-      font-size: 0.9rem;
-      padding: 9px 26px;
-      box-shadow: 0 4px 18px rgba(232,69,110,0.25);
-    }
-
-    .btn-join:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 28px rgba(232,69,110,0.3);
-    }
-
-    .page-section {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 40px 24px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .section {
-      border: 2px dashed rgba(140,140,170,0.35);
-      border-radius: 18px;
-      padding: 38px 24px 24px;
-      position: relative;
-      background: rgba(255,255,255,0.55);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      z-index: 1;
-      transition: box-shadow 0.3s ease;
-    }
-
-    .section:hover {
-      box-shadow: 0 8px 32px rgba(84,108,204,0.07);
-    }
-
-    .section-label {
-      position: absolute;
-      top: -14px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(250,248,255,0.95));
-      border: 2px solid rgba(140,140,170,0.3);
-      border-radius: 20px;
-      padding: 4px 22px;
-      font-size: 1.45rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      color: #2a2a4a;
-      white-space: nowrap;
-      z-index: 2;
-      font-family: Arial, Helvetica, sans-serif;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
-    }
-
-    .abstract-text {
-      font-size: 1rem;
-      line-height: 1.78;
-      color: #3a3a5a;
-      text-align: justify;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    .abstract-text strong {
-      color: var(--blue);
-      font-weight: 700;
-    }
-
-    .figure-title {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: #2a2a4a;
-      text-align: center;
-      margin-bottom: 10px;
-      font-family: Arial, Helvetica, sans-serif;
-    }
-
-    .map-frame {
-      background: linear-gradient(135deg, #f0f4ff 0%, #faf0f3 100%);
-      border-radius: 14px;
-      overflow: hidden;
-      line-height: 0;
-      padding: 4px;
-    }
-
-    .land { fill: #dfe7f7; stroke: #ffffff; stroke-width: 0.55; }
-    .bubble { stroke: #ffffff; stroke-width: 2.4; }
-    .val-text {
-      font-family: Arial, Helvetica, sans-serif;
-      font-weight: 700;
-      text-anchor: middle;
-      dominant-baseline: central;
-      pointer-events: none;
-    }
-    .leader { stroke: #7d7d7d; stroke-width: 1.05; fill: none; pointer-events: none; }
-    .label-bg { fill: rgba(255,255,255,0.97); stroke: #d9dde2; stroke-width: 0.6; }
-    .label-text {
-      fill: #111;
-      font-family: Arial, Helvetica, sans-serif;
-      font-weight: 700;
-      font-size: 12px;
-      letter-spacing: 0.01em;
-    }
-    .legend-box { fill: rgba(255,255,255,0.96); stroke: #b0b0b0; stroke-width: 2; stroke-dasharray: 6 5; }
-
-    .cards {
-      display: flex;
-      gap: 10px;
-      align-items: stretch;
-      flex-wrap: wrap;
-    }
-
-    .card {
-      flex: 1;
-      min-width: 220px;
-      border-radius: 14px;
-      padding: 18px 14px 14px;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
-      backdrop-filter: blur(4px);
-    }
-
-    .card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.06);
-    }
-
-    .card-icon {
-      height: 82px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 10px;
-      font-size: 2.6rem;
-    }
-
-    .card-icon img {
-      max-height: 76px;
-      max-width: 100%;
-      object-fit: contain;
-    }
-
-    .card h3 {
-      font-size: 0.95rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-      font-family: Arial, Helvetica, sans-serif;
-    }
-
-    .card p {
-      font-size: 0.85rem;
-      line-height: 1.5;
-      color: #555;
-    }
-
-    .arrow-right {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex: 0 0 28px;
-      color: var(--mauve);
-    }
-
-    .arrow-right svg {
-      width: 22px;
-      height: 22px;
-    }
-
-    .bibtex-block {
-      background: linear-gradient(135deg, #1a1a2e, #2a2050);
-      color: #a8d8a8;
-      border-radius: 12px;
-      padding: 24px;
-      font-family: monospace;
-      font-size: 0.78rem;
-      line-height: 1.7;
-      overflow-x: auto;
-      position: relative;
-      box-shadow: 0 4px 16px rgba(26,26,46,0.15);
-    }
-
-    .copy-btn {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.15);
-      color: #ccc;
-      padding: 5px 14px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 0.75rem;
-      font-family: Arial, Helvetica, sans-serif;
-      font-weight: 600;
-      transition: all 0.2s;
-    }
-
-    .copy-btn:hover {
-      background: rgba(255,255,255,0.15);
-      color: #fff;
-    }
-
-    footer {
-      text-align: center;
-      padding: 36px 24px;
-      font-size: 0.82rem;
-      color: #aaa;
-      border-top: 2px dashed rgba(140,140,170,0.25);
-      margin-top: 10px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(26,26,46,0.4);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-      padding: 24px;
-      backdrop-filter: blur(6px);
-    }
-
-    .modal-overlay.active {
-      display: flex;
-    }
-
-    .modal-box {
-      background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(16px);
-      border: 2px dashed rgba(140,140,170,0.35);
-      border-radius: 18px;
-      max-width: 900px;
-      width: 100%;
-      max-height: 80vh;
-      overflow-y: auto;
-      padding: 36px 28px 28px;
-      position: relative;
-      box-shadow: 0 16px 48px rgba(0,0,0,0.1);
-    }
-
-    .modal-close {
-      position: absolute;
-      top: 12px;
-      right: 14px;
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      border: 2px solid rgba(140,140,170,0.3);
-      background: rgba(255,255,255,0.8);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
-      color: #666;
-      transition: all 0.2s;
-    }
-
-    .modal-close:hover {
-      border-color: var(--crimson);
-      color: var(--crimson);
-    }
-
-    .modal-title {
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 1.4rem;
-      font-weight: 700;
-      margin-bottom: 4px;
-      color: #1a1a3e;
-    }
-
-    .modal-subtitle {
-      font-size: 0.82rem;
-      color: #999;
-      margin-bottom: 18px;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-    }
-
-    .consortium-names {
-      column-count: 3;
-      column-gap: 20px;
-      font-size: 0.82rem;
-      line-height: 1.9;
-      color: #555;
-    }
-
-    @media (max-width: 900px) {
-      .cards { flex-direction: column; }
-    }
-
-    @media (max-width: 768px) {
-      .consortium-names { column-count: 2; }
-      .hero h1 { font-size: 1.9rem; }
-      .thought-bubble-content { padding: 16px 28px 22px; }
-      .thought-cloud-img { width: 110px; }
-    }
-
-    @media (max-width: 500px) {
-      .consortium-names { column-count: 1; }
-    }
+    @media(max-width:1000px){.compare-grid{grid-template-columns:1fr}.steps-row{flex-direction:column;gap:12px}.arrow-right{transform:rotate(90deg)}}
+    @media(max-width:900px){.cards{flex-direction:column}}
+    @media(max-width:768px){.consortium-names{column-count:2}.hero h1{font-size:1.9rem}.thought-cloud-img{width:110px}}
+    @media(max-width:500px){.consortium-names{column-count:1}}
   </style>
 </head>
 <body>
 
+  <!-- ════════════════════════════════════════════════════════════════════════
+       HERO
+       ════════════════════════════════════════════════════════════════════════ -->
   <section class="hero">
     <div class="hero-inner">
-      <div class="thought-bubble-wrapper" style="animation: fadeUp 0.7s ease forwards;">
-        <img
-          src="src/static-chexthought/images/thinking.png"
-          alt=""
-          class="thought-cloud-img pink-icon"
-        />
-        <div class="thought-bubble-content">
-          <h1>CheXthought</h1>
-        </div>
+      <div class="thought-bubble-wrapper" style="animation:fadeUp .7s ease forwards">
+        <img src="src/static-chexthought/images/thinking.png" alt="" class="thought-cloud-img pink-icon" />
+        <div class="thought-bubble-content"><h1>CheXthought</h1></div>
       </div>
 
       <div class="hero-subtitle">
@@ -594,26 +285,26 @@
     </div>
   </section>
 
-  <section class="page-section fade-in" style="padding-top:10px;">
+  <!-- ════════════════════════════════════════════════════════════════════════
+       ABSTRACT
+       ════════════════════════════════════════════════════════════════════════ -->
+  <section class="page-section fade-in" style="padding-top:10px">
     <div class="section">
       <div class="section-label">Abstract</div>
       <div class="abstract-text">
-        <p>
-          Chest X-ray (CXR) interpretation is among the most frequently performed diagnostic imaging tasks worldwide, yet existing datasets capture only final reports or image-level labels, omitting the cognitive processes underlying expert diagnosis. To address this gap, we introduce <strong>CheXthought</strong>, the first large-scale, globally distributed dataset integrating human chain-of-thought reasoning with synchronized visual attention for CXR interpretation. CheXthought comprises <strong>103,592 reasoning traces</strong> and <strong>6,609,082 spatial annotations</strong> across <strong>50,312 multi-read chest X-rays</strong>, contributed by <strong>501 radiologists</strong> spanning <strong>71 countries</strong>.
-        </p>
+        <p>Chest X-ray (CXR) interpretation is among the most frequently performed diagnostic imaging tasks worldwide, yet existing datasets capture only final reports or image-level labels, omitting the cognitive processes underlying expert diagnosis. To address this gap, we introduce <strong>CheXthought</strong>, the first large-scale, globally distributed dataset integrating human chain-of-thought reasoning with synchronized visual attention for CXR interpretation. CheXthought comprises <strong>103,592 reasoning traces</strong> and <strong>6,609,082 spatial annotations</strong> across <strong>50,312 multi-read chest X-rays</strong>, contributed by <strong>501 radiologists</strong> spanning <strong>71 countries</strong>.</p>
         <br>
-        <p>
-          In blinded expert evaluation, CheXthought chains-of-thought significantly outperform those generated by GPT 5.2, Claude Opus 4.5, and MedGemma 1 across comprehensiveness, factuality, and spatial localization. Fine-tuning vision–language models on CheXthought yields substantial improvements in pathology classification, achieving <strong>65% accuracy</strong> on external datasets compared to <strong>46%</strong> with report-based supervision and <strong>34.5%</strong> with synthetic reasoning. At inference, incorporating visual attention data from CheXthought further improves performance, recovering missed findings in <strong>84%</strong> of cases for MedGemma and <strong>77%</strong> for Qwen-8B-Thinking, while significantly reducing hallucinations.
-        </p>
+        <p>In blinded expert evaluation, CheXthought chains-of-thought significantly outperform those generated by GPT 5.2, Claude Opus 4.5, and MedGemma 1 across comprehensiveness, factuality, and spatial localization. Fine-tuning vision–language models on CheXthought yields substantial improvements in pathology classification, achieving <strong>65% accuracy</strong> on external datasets compared to <strong>46%</strong> with report-based supervision and <strong>34.5%</strong> with synthetic reasoning. At inference, incorporating visual attention data from CheXthought further improves performance, recovering missed findings in <strong>84%</strong> of cases for MedGemma and <strong>77%</strong> for Qwen-8B-Thinking, while significantly reducing hallucinations.</p>
         <br>
-        <p>
-          Leveraging CheXthought’s multi-reader annotations, we train a model to predict inter-reader disagreement as a proxy for diagnostic uncertainty and case difficulty. This model demonstrates strong calibration to human variability, with <strong>92.5%</strong> of predictions falling within ±10 percentage points of ground-truth disagreement percent. Together, these results establish CheXthought as a reference for visually grounded clinical reasoning, enabling the development and benchmarking of more reliable, interpretable, and uncertainty-aware medical AI systems.
-        </p>
+        <p>Leveraging CheXthought's multi-reader annotations, we train a model to predict inter-reader disagreement as a proxy for diagnostic uncertainty and case difficulty. This model demonstrates strong calibration to human variability, with <strong>92.5%</strong> of predictions falling within ±10 percentage points of ground-truth disagreement percent. Together, these results establish CheXthought as a reference for visually grounded clinical reasoning, enabling the development and benchmarking of more reliable, interpretable, and uncertainty-aware medical AI systems.</p>
       </div>
     </div>
   </section>
 
-  <section class="page-section fade-in" style="padding-top:10px;">
+  <!-- ════════════════════════════════════════════════════════════════════════
+       GEOGRAPHIC DISTRIBUTION (MAP)
+       ════════════════════════════════════════════════════════════════════════ -->
+  <section class="page-section fade-in" style="padding-top:10px">
     <div class="section">
       <div class="section-label">Geographic Distribution</div>
       <div class="figure-title">Chain-of-Thought Contributions in CheXthought (Top 25 Countries)</div>
@@ -621,69 +312,230 @@
     </div>
   </section>
 
-  <section class="page-section fade-in" style="padding-top:10px;">
+  <!-- ════════════════════════════════════════════════════════════════════════
+       DATASET CONSTRUCTION
+       ════════════════════════════════════════════════════════════════════════ -->
+  <section class="page-section fade-in" style="padding-top:10px">
     <div class="section">
       <div class="section-label">Dataset Construction</div>
       <div class="cards">
-        <div class="card" style="background:#f3eeff;border:1.5px solid #7c5cfc;">
-          <div class="card-icon">
-            <img src="src/static-chexthought/images/cxr.png" alt="Chest X-ray">
-          </div>
-          <h3 style="color:#5a3ac7;">Data Source</h3>
+        <div class="card" style="background:#f3eeff;border:1.5px solid #7c5cfc">
+          <div class="card-icon"><img src="src/static-chexthought/images/cxr.png" alt="Chest X-ray"></div>
+          <h3 style="color:#5a3ac7">Data Source</h3>
           <p>50,312 chest X-rays are sourced from the CheXpert Plus dataset.</p>
         </div>
-
-        <div class="arrow-right">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
-        </div>
-
-        <div class="card" style="background:#eef4ff;border:1.5px solid #4285f4;">
+        <div class="arrow-right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        <div class="card" style="background:#eef4ff;border:1.5px solid #4285f4">
           <div class="card-icon">
-            <i class="fas fa-file-medical" style="color:#1a5cc8;"></i>
+            <div class="subsections-report" style="--w:85px;--h:68px"><div class="sr-sheet back back-2"></div><div class="sr-sheet back back-1"></div><div class="sr-sheet front"><div class="sr-pill s1">Narrative</div><div class="sr-pill s2">History</div><div class="sr-pill s3">Findings</div><div class="sr-pill s4">Impression</div></div></div>
+            <div class="patient-info-icon" style="--w:80px;--h:68px"><div class="pi-card back back-2"></div><div class="pi-card back back-1"></div><div class="pi-card front"><div class="pi-top"><div class="pi-human"></div><div class="pi-info"><span class="pi-i">i</span></div></div><div class="pi-lines"><div class="pi-line w-85"></div><div class="pi-line w-65"></div></div><div class="pi-tags"><span class="pi-tag">Age</span><span class="pi-tag">Sex</span><span class="pi-tag">Hx</span></div></div></div>
           </div>
-          <h3 style="color:#1a5cc8;">Data Extraction</h3>
+          <h3 style="color:#1a5cc8">Data Extraction</h3>
           <p>Patient information and radiology reports are extracted and linked to the image.</p>
         </div>
-
-        <div class="arrow-right">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
-        </div>
-
-        <div class="card" style="background:#fde8ef;border:1.5px solid #e8456e;">
-          <div class="card-icon">
-            <img src="src/static-chexthought/images/plat.png" alt="Annotation platform">
-          </div>
-          <h3 style="color:#c0213e;">Annotation Platform</h3>
+        <div class="arrow-right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        <div class="card" style="background:#fde8ef;border:1.5px solid #e8456e">
+          <div class="card-icon"><img src="src/static-chexthought/images/platform.png" alt="Annotation platform"></div>
+          <h3 style="color:#c0213e">Annotation Platform</h3>
           <p>Images, reports, and patient data are hosted on a web-based platform capable of displaying DICOM, capturing dictation and spatial annotations.</p>
         </div>
-
-        <div class="arrow-right">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
-        </div>
-
-        <div class="card" style="background:#fff4eb;border:1.5px solid #e67e22;">
-          <div class="card-icon">
-            <img src="src/static-chexthought/images/earth.png" alt="Global recruitment">
-          </div>
-          <h3 style="color:#b85c0a;">Global Recruitment</h3>
+        <div class="arrow-right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        <div class="card" style="background:#fff4eb;border:1.5px solid #e67e22">
+          <div class="card-icon"><img src="src/static-chexthought/images/earth.png" alt="Global recruitment"></div>
+          <h3 style="color:#b85c0a">Global Recruitment</h3>
           <p>Annotators ranging from PGY-2 trainees to attending radiologists were recruited globally.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="page-section fade-in" style="padding-top:0;">
+  <!-- ════════════════════════════════════════════════════════════════════════
+       ANNOTATION PROCESS
+       ════════════════════════════════════════════════════════════════════════ -->
+  <section class="page-section fade-in" style="padding-top:0">
+    <div class="arrow-down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg></div>
+    <div class="section">
+      <div class="section-label">Annotation Process</div>
+      <div class="steps-row">
+        <!-- Step 1 -->
+        <div class="workflow-panel" style="flex:.9;border-color:#e06060;background:rgba(248,208,208,.45)">
+          <div class="wf-step-badge" style="background:#d04848">1</div>
+          <div class="wf-title" style="color:#c04040">Access Annotation Platform</div>
+          <div class="panel-image-wrap"><img src="src/static-chexthought/images/platform.png" alt="Annotation platform" style="border-radius:4px" /></div>
+          <p class="wf-desc">Annotators access the web-based annotation platform from any location and choose their dictation language.</p>
+        </div>
+
+        <div class="arrow-right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+
+        <!-- Step 2 -->
+        <div class="workflow-panel" style="flex:1.5;border-color:#d0b030;background:rgba(252,240,200,.45);position:relative">
+          <div class="wf-step-badge" style="background:#c0a020">2</div>
+          <div class="wf-title" style="color:#a88818">Dictate Chain-of-Thought</div>
+          <div class="person-scene-wrap" style="width:130%;margin:6px -10% 6px -20%">
+            <img src="src/static-chexthought/images/person.png" style="width:100%;height:auto" />
+            <div class="cloud-text-overlay">
+              <p>The upper <strong>[1]</strong> and middle zones <strong>[2]</strong> of the left lung <strong>[3]</strong> are clear because there is no added density and there are normal lung markings. There is no evidence of pneumomediastinum because there is no linear reduced density projecting over the mediastinum <strong>[4]</strong>.</p>
+            </div>
+          </div>
+          <p class="wf-desc">Annotator dictates Chain-of-Thought reasoning via speech-to-text, covering all structured reporting elements.</p>
+        </div>
+
+        <!-- Fan arrows -->
+        <div style="flex:0 0 80px;display:flex;align-items:center;justify-content:center;position:relative">
+          <svg width="80" height="100%" viewBox="0 0 80 300" preserveAspectRatio="none" style="position:absolute;top:0;left:0;width:100%;height:100%;overflow:visible">
+            <defs><marker id="fanArrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#c0a020"/></marker></defs>
+            <line x1="0" y1="150" x2="72" y2="21" stroke="#c0a020" stroke-width="1.5" stroke-dasharray="4 2" marker-end="url(#fanArrow)"/>
+            <line x1="0" y1="150" x2="72" y2="63" stroke="#c0a020" stroke-width="1.5" stroke-dasharray="4 2" marker-end="url(#fanArrow)"/>
+            <line x1="0" y1="150" x2="72" y2="105" stroke="#c0a020" stroke-width="1.5" stroke-dasharray="4 2" marker-end="url(#fanArrow)"/>
+            <line x1="0" y1="150" x2="72" y2="150" stroke="#c0a020" stroke-width="1.5" stroke-dasharray="4 2" marker-end="url(#fanArrow)"/>
+            <line x1="0" y1="150" x2="72" y2="195" stroke="#c0a020" stroke-width="1.5" stroke-dasharray="4 2" marker-end="url(#fanArrow)"/>
+            <line x1="0" y1="150" x2="72" y2="237" stroke="#c0a020" stroke-width="1.5" stroke-dasharray="4 2" marker-end="url(#fanArrow)"/>
+            <line x1="0" y1="150" x2="72" y2="279" stroke="#c0a020" stroke-width="1.5" stroke-dasharray="4 2" marker-end="url(#fanArrow)"/>
+          </svg>
+        </div>
+
+        <!-- CoT Elements -->
+        <div class="workflow-panel" style="flex:1.2;border-color:#d0b030;background:rgba(255,248,224,.45);position:relative">
+          <div style="font-size:1rem;font-weight:700;color:#a88818;text-align:center;margin-bottom:10px;margin-top:2px;letter-spacing:.08em;text-transform:uppercase;padding-bottom:6px;border-bottom:1.5px dashed #d0b030">Chain-of-Thought Elements</div>
+          <div class="cot-stack">
+            <div class="cot-item cot-pink"><div class="cot-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#c0213e" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/><line x1="11" y1="8" x2="11" y2="14"/></svg></div><div class="cot-text"><h4>Image Quality</h4></div></div>
+            <div class="cot-item cot-yellow"><div class="cot-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#9e7c0c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20C8 14 12 10 16 6"/><circle cx="18" cy="4" r="2"/><circle cx="2" cy="22" r="1.5"/></svg></div><div class="cot-text"><h4>Lines &amp; Tubes</h4></div></div>
+            <div class="cot-item cot-green"><div class="cot-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#1d7a37" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div><div class="cot-text"><h4>Abnormalities &amp; Normalities</h4></div></div>
+            <div class="cot-item cot-blue"><div class="cot-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#1a5cc8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/></svg></div><div class="cot-text"><h4>Uncertainty</h4></div></div>
+            <div class="cot-item cot-purple"><div class="cot-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#5a3ac7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="cot-text"><h4>All Findings &amp; Diagnosis</h4></div></div>
+            <div class="cot-item cot-teal"><div class="cot-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#118068" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="cot-text"><h4>Temporal Comparison of Serial Images</h4></div></div>
+            <div class="cot-item cot-orange"><div class="cot-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#b85c0a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7v5a4 4 0 004 4h9"/><polyline points="14 11 18 16 14 21"/></svg></div><div class="cot-text"><h4>Follow-up Imaging Recommendations</h4></div></div>
+          </div>
+        </div>
+
+        <div class="arrow-right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+
+        <!-- Step 3 -->
+        <div class="workflow-panel" style="flex:.75;border-color:#60a0d8;background:rgba(212,236,252,.45)">
+          <div class="wf-step-badge" style="background:#4888c0">3</div>
+          <div class="wf-title" style="color:#3878b0">Spatial Annotations</div>
+          <div class="panel-image-wrap"><img src="src/static-chexthought/images/spatial.png" alt="Spatial annotations" style="border-radius:4px" /></div>
+          <p class="wf-desc">Annotators trace their eye path outlining where they are looking, synchronized with their dictation.</p>
+        </div>
+
+        <div class="arrow-right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+
+        <!-- Step 4 -->
+        <div class="workflow-panel" style="flex:.75;border-color:#5ec490;background:rgba(226,247,237,.45)">
+          <div class="wf-step-badge" style="background:#2e9e60">4</div>
+          <div class="wf-title" style="color:#268a52">Review and Submit</div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:10px 0;gap:12px">
+            <div class="review-submit-label"><span style="font-size:.68rem;font-weight:700;color:#268a52;letter-spacing:.06em">Review &amp; Edit Errors</span></div>
+            <div class="review-submit-icon"><div class="doc-box"><i class="fa-solid fa-pen-to-square"></i></div><div class="check-badge"><i class="fa-solid fa-check"></i></div></div>
+          </div>
+          <p class="wf-desc">Annotators review and edit their Chain-of-Thought transcription, then submit.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       OUTPUT STATS
+       ════════════════════════════════════════════════════════════════════════ -->
+  <section class="page-section fade-in" style="padding-top:0">
+    <div class="arrow-down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg></div>
+    <div class="output-row">
+      <div class="output-section">
+        <div class="output-section-label">Chain-of-Thought</div>
+        <div class="output-card" style="background:rgba(214,234,248,.6);border:2px solid #4285f4">
+          <div class="output-card-icon" style="border:1.5px solid #4285f4">
+            <img src="src/static-chexthought/images/thinking.png" style="filter:brightness(0) saturate(100%) invert(67%) sepia(40%) saturate(400%) hue-rotate(295deg) brightness(1.1)" />
+          </div>
+          <div class="output-card-body">
+            <div class="output-num">103,592</div>
+            <div class="output-subtext" style="color:#3a6a9a">Total Reasoning Traces</div>
+          </div>
+        </div>
+      </div>
+      <div class="output-section">
+        <div class="output-section-label">Spatial Annotations</div>
+        <div class="output-card" style="background:rgba(237,252,242,.6);border:3px solid #34a853">
+          <div class="spatial-icon">
+            <img src="src/static-chexthought/images/spatialannotation.png" alt="Spatial annotations">
+          </div>
+          <div class="output-card-body">
+            <div class="output-num">6,609,082</div>
+            <div class="output-subtext" style="color:#2a7a4a">Total Coordinates</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       REPORT vs CHAIN-OF-THOUGHT
+       ════════════════════════════════════════════════════════════════════════ -->
+  <section class="page-section fade-in" style="padding-top:10px">
+    <div class="compare-outer">
+      <div class="section-label">Report vs Chain-of-Thought</div>
+      <div class="compare-grid">
+        <!-- LEFT: Report -->
+        <div class="col-section">
+          <div class="col-label">CheXpert Plus Report</div>
+          <div class="img-card"><div class="image-stage"><img src="src/static-chexthought/images/cxr.png" alt="Plain CXR" /></div></div>
+          <div class="report-card">
+            <div class="legend">
+              <div class="legend-item"><span class="legend-swatch swatch-dd"></span>Differential Dx</div>
+              <div class="legend-item"><span class="legend-swatch swatch-text"></span>Findings (Not Spatially Grounded)</div>
+            </div>
+            <div class="report-title">Radiology Report</div>
+            <div class="report-body">
+              Narrative: Portable chest, one view. Comparison: Prior chest from 5-4-2010 at 0830 hours. Clinical history: 46-year-old man with history of respiratory distress.
+              <span class="hl-text">Impression: 1. Unchanged position of lines.</span>
+              2. Redemonstration of <span class="hl-text">diffuse bilateral parenchymal opacities</span>, which are unchanged from prior chest X-ray.
+              <span class="hl-dd">These findings are concerning for pulmonary edema. Overlying infection cannot be excluded.</span>
+              <span class="hl-text">3. Redemonstration of small bilateral pleural effusions.</span> End of impression.
+            </div>
+          </div>
+        </div>
+        <!-- RIGHT: CoT -->
+        <div class="col-section">
+          <div class="col-label">CheXthought Chain-of-Thought</div>
+          <div class="img-card"><div class="image-stage">
+            <img src="src/static-chexthought/images/cxr.png" alt="Annotated CXR" />
+            <svg class="overlay" viewBox="0 0 2828 2320" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g id="dot-layer"></g></svg>
+          </div></div>
+          <div class="report-card">
+            <div class="legend">
+              <div class="legend-item"><span class="legend-swatch swatch-dd"></span>Differential Dx</div>
+              <div class="legend-item"><span class="legend-swatch swatch-spatial"></span>Spatially Grounded</div>
+              <div class="legend-item"><span class="legend-swatch swatch-text"></span>Findings</div>
+              <div class="legend-item"><span class="legend-swatch swatch-uncertainty"></span>Uncertainty</div>
+              <div class="legend-item"><span class="legend-swatch swatch-reasoning"></span>Reasoning Steps</div>
+            </div>
+            <div class="report-title">Chain-of-Thought</div>
+            <div class="report-body">
+              <span class="tag">[#1]</span> I first note that this is a portable supine chest radiograph of a 46-year-old male with clinical history of respiratory distress.
+              <span class="tag">[#2–#6]</span> <span class="hl-spatial">I note a tunnel internal jugular venous catheter with its tip projecting over the middle third of the superior vena cava, in appropriate position.</span>
+              <span class="tag">[#7–#8]</span> <span class="hl-text">I also note cardiac leads overlying the patient.</span>
+              <span class="tag">[#9–#12]</span> <span class="hl-text">I first noticed the increased fluffy and patchy opacities bilaterally</span> <span class="tag">[#13]</span> <span class="hl-text">throughout the lung fields,</span> which is <span class="hl-dd">suspicious for pulmonary edema.</span> <span class="hl-text">There is no focal consolidation</span> and <span class="hl-reasoning">the opacities are quite patchy in appearance.</span> <span class="tag">[#14–#23]</span> <span class="hl-reasoning">The cardiac contours are enlarged, suggesting a history of congestive heart failure.</span> <span class="tag">[#24–#27]</span>
+              <span class="hl-text">Likely small bilateral pleural effusions.</span> <span class="tag">[#28–#29]</span> <span class="hl-text">No apical pneumothorax.</span>
+              <span class="hl-spatial">I check the costophrenic angles for a deep sulcus sign, which is not present. <span class="tag">[#30–#31]</span> Upper abdomen normal. <span class="tag">[#32–#37]</span> Bilateral shoulders unremarkable. <span class="tag">[#38–#45]</span> Ribs unremarkable. <span class="tag">[#46–#49]</span> Spine midline, vertebral bodies normal in height and alignment.</span>
+              <span class="hl-uncertainty">I am uncertain regarding the presence of small bilateral pleural effusions, though highly likely given clinical context and cardiomegaly.</span>
+              <span class="hl-reasoning">This appearance could represent atelectasis or enlarged pericardial fat pads. A lateral radiograph would help confirm.</span>
+              <span class="hl-uncertainty">I am also uncertain regarding the nature of cardiomegaly — difficult to delineate each chamber on a simple AP view.</span>
+              <span class="hl-dd">Findings suspicious for volume overload/pulmonary edema on the basis of congestive heart failure.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       BIBTEX
+       ════════════════════════════════════════════════════════════════════════ -->
+  <section class="page-section fade-in" style="padding-top:10px">
     <div class="section">
       <div class="section-label">BibTeX</div>
       <div class="bibtex-block">
         <button class="copy-btn" onclick="copyBib()"><i class="fas fa-copy"></i> Copy</button>
-<pre style="margin:0;white-space:pre-wrap;">@article{chexthought2026,
+<pre style="margin:0;white-space:pre-wrap">@article{chexthought2026,
   title={CheXthought: A Global Human Chain-of-Thought and Spatial
          Reasoning Dataset for Chest X-Ray Interpretation},
   author={Sharma, Sonali and Long, Jin and Shih, George and Eid, Sarah
@@ -697,10 +549,9 @@
     </div>
   </section>
 
-  <footer>
-    <p>CheXthought &copy; 2026 &middot; Stanford AIMI</p>
-  </footer>
+  <footer><p>CheXthought &copy; 2026 &middot; Stanford AIMI</p></footer>
 
+  <!-- ══ MODAL ══ -->
   <div class="modal-overlay" id="consortiumModal" onclick="if(event.target===this)closeModal()">
     <div class="modal-box">
       <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
@@ -710,441 +561,77 @@
     </div>
   </div>
 
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       SCRIPTS
+       ══════════════════════════════════════════════════════════════════════════ -->
   <script>
-    const members = [
-      "Grant MacKinnon","Mustafa Ege Seker","Yoojin Nam","Stephanie Nougaret","Suvrankar Datta","Seong Ho Park",
-      "Hwajin Lee","Dong Yeong Kim","Jeong Min Song","George Hadjidekov","Lili Koteterova","Aram Can Yuce",
-      "Raif Yarol","Emre Ruhat Avci","Furkan Uncuoglu","Ekin Tunga","Mushtaq Omid","Onur Taydas","Rabia Aksoylu",
-      "Burak Yangoz","Kaan Kucukdere","Esra Aktufan","Gizem Karagol","Zeynep Nilufer Tekin","Zeynep Kazci",
-      "Ahmet Kasim Karabulut","Caner Öztürk","Fatma Can","Eren Çamur","Gorkem Durak","Yasin Karkas",
-      "Cleiton Aquino de Freitas","Mohamad Monif Assker","Munther Abduljalil","Faris Haddad","Faysal Al-Ma’ay ah",
-      "Nuri Saraç","Onat Guner","Ismet Cayir","Alexander V. Ortiz","Calvin Qian","Munkhbaatar Dagvasumberel"
-    ];
+    /* ── Consortium modal ── */
+    const members=["Grant MacKinnon","Mustafa Ege Seker","Yoojin Nam","Stephanie Nougaret","Suvrankar Datta","Seong Ho Park","Hwajin Lee","Dong Yeong Kim","Jeong Min Song","George Hadjidekov","Lili Koteterova","Aram Can Yuce","Raif Yarol","Emre Ruhat Avci","Furkan Uncuoglu","Ekin Tunga","Mushtaq Omid","Onur Taydas","Rabia Aksoylu","Burak Yangoz","Kaan Kucukdere","Esra Aktufan","Gizem Karagol","Zeynep Nilufer Tekin","Zeynep Kazci","Ahmet Kasim Karabulut","Caner Öztürk","Fatma Can","Eren Çamur","Gorkem Durak","Yasin Karkas","Cleiton Aquino de Freitas","Mohamad Monif Assker","Munther Abduljalil","Faris Haddad","Faysal Al-Ma'ay ah","Nuri Saraç","Onat Guner","Ismet Cayir","Alexander V. Ortiz","Calvin Qian","Munkhbaatar Dagvasumberel"];
+    document.getElementById("consortiumNames").innerHTML=members.map(n=>`<span>${n}</span>`).join(" &middot; ");
+    function openModal(){document.getElementById("consortiumModal").classList.add("active");document.body.style.overflow="hidden"}
+    function closeModal(){document.getElementById("consortiumModal").classList.remove("active");document.body.style.overflow=""}
+    function copyBib(){const b=document.querySelector(".bibtex-block pre").textContent;navigator.clipboard.writeText(b).then(()=>{const btn=document.querySelector(".copy-btn");btn.innerHTML='<i class="fas fa-check"></i> Copied!';setTimeout(()=>{btn.innerHTML='<i class="fas fa-copy"></i> Copy'},2000)})}
 
-    document.getElementById("consortiumNames").innerHTML =
-      members.map(n => `<span>${n}</span>`).join(" &middot; ");
+    /* ── Scroll fade-in ── */
+    const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.style.animationDelay="0.1s";e.target.classList.add("fade-in-visible");obs.unobserve(e.target)}})},{threshold:.15});
+    document.querySelectorAll(".fade-in").forEach(el=>obs.observe(el));
 
-    function openModal() {
-      document.getElementById("consortiumModal").classList.add("active");
-      document.body.style.overflow = "hidden";
-    }
+    /* ── CoT dot overlay ── */
+    const points=[{x:541,y:64,index:1},{x:337,y:1228,index:2},{x:706,y:800,index:3},{x:920,y:368,index:4},{x:1143,y:196,index:5},{x:1179,y:864,index:6},{x:1389,y:864,index:7},{x:518,y:1640,index:8},{x:971,y:664,index:9},{x:1825,y:780,index:10},{x:864,y:1024,index:11},{x:1919,y:1068,index:12},{x:1392,y:180,index:13},{x:1337,y:496,index:14},{x:1311,y:892,index:15},{x:1424,y:884,index:16},{x:1133,y:800,index:17},{x:1520,y:600,index:18},{x:1756,y:1024,index:19},{x:1944,y:1372,index:20},{x:1028,y:1328,index:21},{x:1119,y:904,index:22},{x:1494,y:1492,index:23},{x:526,y:1476,index:24},{x:698,y:1332,index:25},{x:1986,y:1472,index:26},{x:2113,y:1572,index:27},{x:1666,y:288,index:28},{x:1073,y:276,index:29},{x:834,y:1720,index:30},{x:1821,y:1784,index:31},{x:397,y:232,index:32},{x:879,y:160,index:33},{x:520,y:540,index:34},{x:2025,y:172,index:35},{x:2414,y:360,index:36},{x:2168,y:568,index:37},{x:766,y:412,index:38},{x:659,y:676,index:39},{x:604,y:936,index:40},{x:546,y:1400,index:41},{x:1944,y:460,index:42},{x:2009,y:788,index:43},{x:2077,y:1212,index:44},{x:2138,y:1720,index:45},{x:1416,y:344,index:46},{x:1300,y:796,index:47},{x:1268,y:1272,index:48},{x:1268,y:1752,index:49}];
+    const dotLayer=document.getElementById("dot-layer");
+    if(dotLayer){const ns="http://www.w3.org/2000/svg";points.forEach(p=>{const g=document.createElementNS(ns,"g");const c=document.createElementNS(ns,"circle");c.setAttribute("cx",p.x);c.setAttribute("cy",p.y);c.setAttribute("r",38);c.setAttribute("class","dot-circle");const t=document.createElementNS(ns,"text");t.setAttribute("x",p.x);t.setAttribute("y",p.y+1);t.setAttribute("class","dot-label");t.textContent=p.index;g.appendChild(c);g.appendChild(t);dotLayer.appendChild(g)})}
 
-    function closeModal() {
-      document.getElementById("consortiumModal").classList.remove("active");
-      document.body.style.overflow = "";
-    }
+    /* ══ MAP (D3) ══ */
+    const PALETTE={ocean:"#f8faff",land:"#dfe7f7",bin1:"#f87190",bin2:"#546ccc",bin3:"#7ac1b9",bin4:"#b1c480"};
+    const mapData=[{iso:"USA",name:"United States",cases:26688},{iso:"TUR",name:"Türkiye",cases:15780},{iso:"ITA",name:"Italy",cases:6315},{iso:"KOR",name:"South Korea",cases:3997},{iso:"CAN",name:"Canada",cases:3487},{iso:"GBR",name:"United Kingdom",cases:2845},{iso:"IND",name:"India",cases:2355},{iso:"ARE",name:"United Arab\nEmirates",cases:2054},{iso:"EGY",name:"Egypt",cases:2020},{iso:"JOR",name:"Jordan",cases:1001},{iso:"GHA",name:"Ghana",cases:898},{iso:"ESP",name:"Spain",cases:853},{iso:"MYS",name:"Malaysia",cases:805},{iso:"CHE",name:"Switzerland",cases:736},{iso:"TWN",name:"Taiwan",cases:678,lat:23.7,lon:121},{iso:"AUS",name:"Australia",cases:677},{iso:"BRA",name:"Brazil",cases:573},{iso:"DEU",name:"Germany",cases:548},{iso:"BEL",name:"Belgium",cases:517},{iso:"IDN",name:"Indonesia",cases:488},{iso:"SWE",name:"Sweden",cases:455},{iso:"SGP",name:"Singapore",cases:404,lat:1.35,lon:103.8},{iso:"QAT",name:"Qatar",cases:387,lat:25.3,lon:51.2},{iso:"ARG",name:"Argentina",cases:354},{iso:"MNG",name:"Mongolia",cases:315}];
+    const W=1600,H=860,maxCases=d3.max(mapData,d=>d.cases);
+    const cropLeft=250,cropRight=150,viewW=W-cropLeft-cropRight,viewH=H;
+    function getColor(c){if(c>10000)return PALETTE.bin1;if(c>=2000)return PALETTE.bin2;if(c>=500)return PALETTE.bin3;return PALETTE.bin4}
 
-    function copyBib() {
-      const b = document.querySelector(".bibtex-block pre").textContent;
-      navigator.clipboard.writeText(b).then(() => {
-        const btn = document.querySelector(".copy-btn");
-        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-        setTimeout(() => {
-          btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
-        }, 2000);
-      });
-    }
+    const svg=d3.select("#map").append("svg").attr("width",viewW).attr("height",viewH).attr("viewBox",`${cropLeft} 0 ${viewW} ${viewH}`).style("background",PALETTE.ocean);
+    const legendItems=[{l:">10,000",c:PALETTE.bin1},{l:"2,000–10,000",c:PALETTE.bin2},{l:"500–1,999",c:PALETTE.bin3},{l:"<500",c:PALETTE.bin4}];
+    const cR=10,cTG=8,iG=28,lPX=28,lPT=10,lPB=14;
+    const lC=svg.append("g");const lT=lC.append("text").attr("x",0).attr("y",0).attr("text-anchor","middle").attr("font-family","Arial,Helvetica,sans-serif").attr("font-weight","700").attr("font-size","12px").attr("fill","#111").text("Number of Contributions");
+    const tBB=lT.node().getBBox();const iR=lC.append("g");let cX=0;
+    legendItems.forEach((d,i)=>{if(i>0)cX+=iG;iR.append("circle").attr("cx",cX+cR).attr("cy",0).attr("r",cR).attr("fill",d.c).attr("stroke","#fff").attr("stroke-width",2);const t=iR.append("text").attr("x",cX+cR*2+cTG).attr("y",5).attr("font-family","Arial,Helvetica,sans-serif").attr("font-weight","700").attr("font-size","14px").attr("fill","#333").text(d.l);cX+=cR*2+cTG+t.node().getBBox().width});
+    const iBB=iR.node().getBBox(),iMX=iBB.x+iBB.width/2;lT.attr("x",iMX);iR.attr("transform",`translate(0,${tBB.height+12})`);
+    const cBB=lC.node().getBBox(),bW=cBB.width+lPX*2,bH=cBB.height+lPT+lPB,vCX=cropLeft+viewW/2,bX=vCX-bW/2,bY=12;
+    svg.insert("rect",":first-child").attr("class","legend-box").attr("x",bX).attr("y",bY).attr("width",bW).attr("height",bH).attr("rx",14).attr("ry",14);
+    svg.node().insertBefore(svg.select(".legend-box").node(),lC.node());
+    lC.attr("transform",`translate(${vCX-(cBB.x+cBB.width/2)},${bY+lPT-cBB.y})`);
 
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          e.target.style.animationDelay = "0.1s";
-          e.target.classList.add("fade-in-visible");
-          obs.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.15 });
+    const projection=d3.geoNaturalEarth1().scale(258).translate([W/2,H/2+28]);
+    const geoPath=d3.geoPath().projection(projection);
+    const rScale=d3.scaleSqrt().domain([0,maxCases]).range([7,38]);
+    const numMap={"840":"USA","792":"TUR","380":"ITA","410":"KOR","826":"GBR","124":"CAN","356":"IND","400":"JOR","724":"ESP","458":"MYS","756":"CHE","158":"TWN","784":"ARE","076":"BRA","276":"DEU","056":"BEL","752":"SWE","702":"SGP","818":"EGY","496":"MNG","360":"IDN","036":"AUS","634":"QAT","032":"ARG","288":"GHA"};
+    const labelOcean={"United States":{dx:-87,dy:44},"Türkiye":{dx:50,dy:-78},"Italy":{dx:-54,dy:55},"South Korea":{dx:93,dy:-34},"Canada":{dx:-70,dy:0},"United Kingdom":{dx:-97,dy:-2},"India":{dx:4,dy:44},"United Arab\nEmirates":{dx:4,dy:51},"Egypt":{dx:-35,dy:34},"Jordan":{dx:16,dy:41},"Ghana":{dx:-57,dy:-1},"Spain":{dx:-89,dy:40},"Malaysia":{dx:2,dy:83},"Switzerland":{dx:-129,dy:0},"Taiwan":{dx:71,dy:-21},"Australia":{dx:-88,dy:0},"Brazil":{dx:65,dy:3},"Germany":{dx:-44,dy:-108},"Belgium":{dx:-42,dy:-61},"Indonesia":{dx:82,dy:-18},"Sweden":{dx:34,dy:-68},"Singapore":{dx:-58,dy:45},"Qatar":{dx:27,dy:-29},"Argentina":{dx:70,dy:7},"Mongolia":{dx:23,dy:-44}};
+    function getLabelLines(n){return n.split("\n")}
+    function getLabelWidth(n){const l=getLabelLines(n);return l.reduce((a,b)=>a.length>b.length?a:b).length*7.15+16}
+    function getLabelHeight(n){const l=getLabelLines(n);return l.length===1?22:22+(l.length-1)*15}
 
-    document.querySelectorAll(".fade-in").forEach(el => obs.observe(el));
+    d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json").then(world=>{
+      const countries=topojson.feature(world,world.objects.countries).features;
+      const centroids={};countries.forEach(c=>{const a=numMap[String(c.id)];if(a)centroids[a]=geoPath.centroid(c)});
+      svg.selectAll(".land").data(countries).enter().append("path").attr("class","land").attr("d",geoPath).attr("fill",PALETTE.land);
+      mapData.forEach(d=>{if(d.lon!==undefined){const p=projection([d.lon,d.lat]);d.cx=p[0];d.cy=p[1]}else{const c=centroids[d.iso];if(c){d.cx=c[0];d.cy=c[1]}else d.hidden=true}d.r=rScale(d.cases);d.color=getColor(d.cases)});
+      const visible=mapData.filter(d=>!d.hidden);visible.sort((a,b)=>b.cases-a.cases);
+      for(let iter=0;iter<70;iter++){let moved=false;for(let i=0;i<visible.length;i++)for(let j=i+1;j<visible.length;j++){const a=visible[i],b=visible[j],dx=a.cx-b.cx,dy=a.cy-b.cy,dist=Math.sqrt(dx*dx+dy*dy),minD=a.r+b.r+5;if(dist<minD&&dist>.1){const push=(minD-dist)/2+.75;a.cx+=(dx/dist)*push;a.cy+=(dy/dist)*push;b.cx-=(dx/dist)*push;b.cy-=(dy/dist)*push;moved=true}}if(!moved)break}
+      visible.forEach(d=>{const off=labelOcean[d.name]||{dx:75,dy:0};d.lx=d.cx+off.dx;d.ly=d.cy+off.dy});
 
-    const PALETTE = {
-      ocean: "#f8faff",
-      land: "#dfe7f7",
-      bin1: "#f87190",
-      bin2: "#546ccc",
-      bin3: "#7ac1b9",
-      bin4: "#b1c480"
-    };
+      const leaderG=svg.append("g"),bubbleG=svg.append("g"),labelG=svg.append("g");
+      const leaders=leaderG.selectAll(".leader").data(visible).enter().append("line").attr("class","leader");
+      const bGs=bubbleG.selectAll(".bg").data(visible).enter().append("g");
+      bGs.append("circle").attr("class","bubble").attr("cx",d=>d.cx).attr("cy",d=>d.cy).attr("r",d=>d.r).attr("fill",d=>d.color).attr("fill-opacity",.92);
+      bGs.append("text").attr("class","val-text").attr("x",d=>d.cx).attr("y",d=>d.cy).attr("font-size",d=>{if(d.r<10)return"8px";if(d.r<14)return"10px";if(d.r<20)return"12px";if(d.r<28)return"15px";return Math.min(18,d.r*.48)+"px"}).attr("fill",d=>d.color===PALETTE.bin1||d.color===PALETTE.bin2?"#fff":"#111").text(d=>d.cases>=1000?(d.cases/1000).toFixed(1)+"k":d.cases);
 
-    const data = [
-      { iso: "USA", name: "United States",          cases: 26688 },
-      { iso: "TUR", name: "Türkiye",               cases: 15780 },
-      { iso: "ITA", name: "Italy",                 cases: 6315  },
-      { iso: "KOR", name: "South Korea",           cases: 3997  },
-      { iso: "CAN", name: "Canada",                cases: 3487  },
-      { iso: "GBR", name: "United Kingdom",        cases: 2845  },
-      { iso: "IND", name: "India",                 cases: 2355  },
-      { iso: "ARE", name: "United Arab\nEmirates", cases: 2054  },
-      { iso: "EGY", name: "Egypt",                 cases: 2020  },
-      { iso: "JOR", name: "Jordan",                cases: 1001  },
-      { iso: "GHA", name: "Ghana",                 cases: 898   },
-      { iso: "ESP", name: "Spain",                 cases: 853   },
-      { iso: "MYS", name: "Malaysia",              cases: 805   },
-      { iso: "CHE", name: "Switzerland",           cases: 736   },
-      { iso: "TWN", name: "Taiwan",                cases: 678, lat: 23.7, lon: 121.0 },
-      { iso: "AUS", name: "Australia",             cases: 677   },
-      { iso: "BRA", name: "Brazil",                cases: 573   },
-      { iso: "DEU", name: "Germany",               cases: 548   },
-      { iso: "BEL", name: "Belgium",               cases: 517   },
-      { iso: "IDN", name: "Indonesia",             cases: 488   },
-      { iso: "SWE", name: "Sweden",                cases: 455   },
-      { iso: "SGP", name: "Singapore",             cases: 404, lat: 1.35, lon: 103.8 },
-      { iso: "QAT", name: "Qatar",                 cases: 387, lat: 25.3, lon: 51.2 },
-      { iso: "ARG", name: "Argentina",             cases: 354   },
-      { iso: "MNG", name: "Mongolia",              cases: 315   }
-    ];
+      const labels=labelG.selectAll(".lg").data(visible).enter().append("g").attr("class","lg");
+      const lBgs=labels.append("rect").attr("class","label-bg").attr("rx",5);
+      labels.each(function(d){const lines=getLabelLines(d.name);const t=d3.select(this).append("text").attr("class","label-text").attr("text-anchor","middle");if(lines.length===1)t.text(d.name);else lines.forEach((line,i)=>{t.append("tspan").attr("x",0).attr("dy",i===0?"0":"1.15em").text(line)})});
 
-    const W = 1600, H = 860;
-    const maxCases = d3.max(data, d => d.cases);
-    const cropLeft = 250, cropRight = 150, cropTop = 0, cropBottom = 0;
-    const viewW = W - cropLeft - cropRight;
-    const viewH = H - cropTop - cropBottom;
-
-    function getColor(cases) {
-      if (cases > 10000) return PALETTE.bin1;
-      if (cases >= 2000) return PALETTE.bin2;
-      if (cases >= 500) return PALETTE.bin3;
-      return PALETTE.bin4;
-    }
-
-    const svg = d3.select("#map")
-      .append("svg")
-      .attr("width", viewW)
-      .attr("height", viewH)
-      .attr("viewBox", `${cropLeft} ${cropTop} ${viewW} ${viewH}`)
-      .style("background", PALETTE.ocean);
-
-    const legendItems = [
-      { l: ">10,000", c: PALETTE.bin1 },
-      { l: "2,000–10,000", c: PALETTE.bin2 },
-      { l: "500–1,999", c: PALETTE.bin3 },
-      { l: "<500", c: PALETTE.bin4 }
-    ];
-
-    const circleR = 10;
-    const circleTextGap = 8;
-    const itemGap = 28;
-    const legendPadX = 28;
-    const legendPadTop = 10;
-    const legendPadBottom = 14;
-
-    const legendContent = svg.append("g");
-    const legendTitle = legendContent.append("text")
-      .attr("x", 0)
-      .attr("y", 0)
-      .attr("text-anchor", "middle")
-      .attr("font-family", "Arial,Helvetica,sans-serif")
-      .attr("font-weight", "700")
-      .attr("font-size", "12px")
-      .attr("fill", "#111")
-      .text("Number of Contributions");
-
-    const titleBBox = legendTitle.node().getBBox();
-    const itemsRow = legendContent.append("g");
-    let cursorX = 0;
-
-    legendItems.forEach((d, i) => {
-      if (i > 0) cursorX += itemGap;
-
-      itemsRow.append("circle")
-        .attr("cx", cursorX + circleR)
-        .attr("cy", 0)
-        .attr("r", circleR)
-        .attr("fill", d.c)
-        .attr("stroke", "#fff")
-        .attr("stroke-width", 2);
-
-      const txt = itemsRow.append("text")
-        .attr("x", cursorX + circleR * 2 + circleTextGap)
-        .attr("y", 5)
-        .attr("font-family", "Arial,Helvetica,sans-serif")
-        .attr("font-weight", "700")
-        .attr("font-size", "14px")
-        .attr("fill", "#333")
-        .text(d.l);
-
-      cursorX += circleR * 2 + circleTextGap + txt.node().getBBox().width;
-    });
-
-    const itemsBBox = itemsRow.node().getBBox();
-    const itemsMidX = itemsBBox.x + itemsBBox.width / 2;
-    legendTitle.attr("x", itemsMidX);
-
-    const titleH = titleBBox.height;
-    const gapTitleItems = 12;
-    itemsRow.attr("transform", `translate(0,${titleH + gapTitleItems})`);
-
-    const contentBBox = legendContent.node().getBBox();
-    const boxW = contentBBox.width + legendPadX * 2;
-    const boxH = contentBBox.height + legendPadTop + legendPadBottom;
-    const visibleCenterX = cropLeft + viewW / 2;
-    const boxX = visibleCenterX - boxW / 2;
-    const boxY = 12;
-
-    svg.insert("rect", ":first-child")
-      .attr("class", "legend-box")
-      .attr("x", boxX)
-      .attr("y", boxY)
-      .attr("width", boxW)
-      .attr("height", boxH)
-      .attr("rx", 14)
-      .attr("ry", 14);
-
-    svg.node().insertBefore(svg.select(".legend-box").node(), legendContent.node());
-
-    const targetX = visibleCenterX - (contentBBox.x + contentBBox.width / 2);
-    const targetY = boxY + legendPadTop - contentBBox.y;
-    legendContent.attr("transform", `translate(${targetX},${targetY})`);
-
-    const projection = d3.geoNaturalEarth1().scale(258).translate([W / 2, H / 2 + 28]);
-    const path = d3.geoPath().projection(projection);
-    const rScale = d3.scaleSqrt().domain([0, maxCases]).range([7, 38]);
-
-    const numMap = {
-      "840":"USA","792":"TUR","380":"ITA","410":"KOR","826":"GBR","124":"CAN",
-      "356":"IND","400":"JOR","724":"ESP","458":"MYS","756":"CHE","158":"TWN",
-      "784":"ARE","076":"BRA","276":"DEU","056":"BEL","752":"SWE","702":"SGP",
-      "818":"EGY","496":"MNG","360":"IDN","036":"AUS","634":"QAT","032":"ARG",
-      "288":"GHA"
-    };
-
-    const labelOcean = {
-      "United States": { dx:-87, dy:44 },
-      "Türkiye": { dx:50, dy:-78 },
-      "Italy": { dx:-54, dy:55 },
-      "South Korea": { dx:93, dy:-34 },
-      "Canada": { dx:-70, dy:0 },
-      "United Kingdom": { dx:-97, dy:-2 },
-      "India": { dx:4, dy:44 },
-      "United Arab\nEmirates": { dx:4, dy:51 },
-      "Egypt": { dx:-35, dy:34 },
-      "Jordan": { dx:16, dy:41 },
-      "Ghana": { dx:-57, dy:-1 },
-      "Spain": { dx:-89, dy:40 },
-      "Malaysia": { dx:2, dy:83 },
-      "Switzerland": { dx:-129, dy:0 },
-      "Taiwan": { dx:71, dy:-21 },
-      "Australia": { dx:-88, dy:0 },
-      "Brazil": { dx:65, dy:3 },
-      "Germany": { dx:-44, dy:-108 },
-      "Belgium": { dx:-42, dy:-61 },
-      "Indonesia": { dx:82, dy:-18 },
-      "Sweden": { dx:34, dy:-68 },
-      "Singapore": { dx:-58, dy:45 },
-      "Qatar": { dx:27, dy:-29 },
-      "Argentina": { dx:70, dy:7 },
-      "Mongolia": { dx:23, dy:-44 }
-    };
-
-    function getLabelLines(n) {
-      return n.split("\n");
-    }
-
-    function getLabelWidth(n) {
-      const l = getLabelLines(n);
-      const lo = l.reduce((a, b) => a.length > b.length ? a : b);
-      return lo.length * 7.15 + 16;
-    }
-
-    function getLabelHeight(n) {
-      const l = getLabelLines(n);
-      return l.length === 1 ? 22 : 22 + (l.length - 1) * 15;
-    }
-
-    d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
-      .then((world) => {
-        const countries = topojson.feature(world, world.objects.countries).features;
-        const centroids = {};
-
-        countries.forEach((c) => {
-          const a = numMap[String(c.id)];
-          if (a) centroids[a] = path.centroid(c);
-        });
-
-        svg.selectAll(".land")
-          .data(countries)
-          .enter()
-          .append("path")
-          .attr("class", "land")
-          .attr("d", path)
-          .attr("fill", PALETTE.land);
-
-        data.forEach((d) => {
-          if (d.lon !== undefined) {
-            const p = projection([d.lon, d.lat]);
-            d.cx = p[0];
-            d.cy = p[1];
-          } else {
-            const c = centroids[d.iso];
-            if (c) {
-              d.cx = c[0];
-              d.cy = c[1];
-            } else {
-              d.hidden = true;
-            }
-          }
-          d.r = rScale(d.cases);
-          d.color = getColor(d.cases);
-        });
-
-        const visible = data.filter(d => !d.hidden);
-        visible.sort((a, b) => b.cases - a.cases);
-
-        for (let iter = 0; iter < 70; iter++) {
-          let moved = false;
-          for (let i = 0; i < visible.length; i++) {
-            for (let j = i + 1; j < visible.length; j++) {
-              const a = visible[i];
-              const b = visible[j];
-              const dx = a.cx - b.cx;
-              const dy = a.cy - b.cy;
-              const dist = Math.sqrt(dx * dx + dy * dy);
-              const minD = a.r + b.r + 5;
-
-              if (dist < minD && dist > 0.1) {
-                const push = (minD - dist) / 2 + 0.75;
-                a.cx += (dx / dist) * push;
-                a.cy += (dy / dist) * push;
-                b.cx -= (dx / dist) * push;
-                b.cy -= (dy / dist) * push;
-                moved = true;
-              }
-            }
-          }
-          if (!moved) break;
-        }
-
-        visible.forEach((d) => {
-          const off = labelOcean[d.name] || { dx:75, dy:0 };
-          d.lx = d.cx + off.dx;
-          d.ly = d.cy + off.dy;
-        });
-
-        const leaderGroup = svg.append("g");
-        const bubbleGroup = svg.append("g");
-        const labelGroup = svg.append("g");
-
-        const leaders = leaderGroup.selectAll(".leader")
-          .data(visible)
-          .enter()
-          .append("line")
-          .attr("class", "leader");
-
-        const bubbleGs = bubbleGroup.selectAll(".bubble-g")
-          .data(visible)
-          .enter()
-          .append("g");
-
-        bubbleGs.append("circle")
-          .attr("class", "bubble")
-          .attr("cx", d => d.cx)
-          .attr("cy", d => d.cy)
-          .attr("r", d => d.r)
-          .attr("fill", d => d.color)
-          .attr("fill-opacity", 0.92);
-
-        bubbleGs.append("text")
-          .attr("class", "val-text")
-          .attr("x", d => d.cx)
-          .attr("y", d => d.cy)
-          .attr("font-size", (d) => {
-            if (d.r < 10) return "8px";
-            if (d.r < 14) return "10px";
-            if (d.r < 20) return "12px";
-            if (d.r < 28) return "15px";
-            return Math.min(18, d.r * 0.48) + "px";
-          })
-          .attr("fill", (d) => {
-            return d.color === PALETTE.bin1 || d.color === PALETTE.bin2 ? "#ffffff" : "#111111";
-          })
-          .text((d) => {
-            if (d.cases >= 1000) return (d.cases / 1000).toFixed(1) + "k";
-            return d.cases;
-          });
-
-        const labels = labelGroup.selectAll(".label-g")
-          .data(visible)
-          .enter()
-          .append("g")
-          .attr("class", "label-g");
-
-        const labelBgs = labels.append("rect")
-          .attr("class", "label-bg")
-          .attr("rx", 5);
-
-        labels.each(function(d) {
-          const lines = getLabelLines(d.name);
-          const t = d3.select(this)
-            .append("text")
-            .attr("class", "label-text")
-            .attr("text-anchor", "middle");
-
-          if (lines.length === 1) {
-            t.text(d.name);
-          } else {
-            lines.forEach((line, i) => {
-              t.append("tspan")
-                .attr("x", 0)
-                .attr("dy", i === 0 ? "0" : "1.15em")
-                .text(line);
-            });
-          }
-        });
-
-        function updatePositions() {
-          leaders.each(function(d) {
-            const dx = d.lx - d.cx;
-            const dy = d.ly - d.cy;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            let sx = d.cx, sy = d.cy, ex = d.lx, ey = d.ly;
-            const lp = 14;
-
-            if (dist > 0.1) {
-              const nx = dx / dist;
-              const ny = dy / dist;
-              sx = d.cx + nx * (d.r + 4);
-              sy = d.cy + ny * (d.r + 4);
-              ex = d.lx - nx * lp;
-              ey = d.ly - ny * lp;
-            }
-
-            d3.select(this)
-              .attr("x1", sx)
-              .attr("y1", sy)
-              .attr("x2", ex)
-              .attr("y2", ey);
-          });
-
-          labelBgs.each(function(d) {
-            const tw = getLabelWidth(d.name);
-            const th = getLabelHeight(d.name);
-            d3.select(this)
-              .attr("x", d.lx - tw / 2 - 3)
-              .attr("y", d.ly - th / 2 - 2)
-              .attr("width", tw + 6)
-              .attr("height", th + 4);
-          });
-
-          labels.each(function(d) {
-            const lines = getLabelLines(d.name);
-            const t = d3.select(this).select(".label-text");
-
-            if (lines.length === 1) {
-              t.attr("x", d.lx).attr("y", d.ly + 4);
-            } else {
-              const topY = d.ly - (lines.length - 1) * 7.5 + 2;
-              t.attr("x", d.lx).attr("y", topY);
-              t.selectAll("tspan").attr("x", d.lx);
-            }
-          });
-        }
-
-        updatePositions();
-      })
-      .catch((err) => {
-        document.getElementById("map").innerHTML =
-          "<p style='color:red;padding:20px;'>Error: " + err + "</p>";
-      });
+      leaders.each(function(d){const dx=d.lx-d.cx,dy=d.ly-d.cy,dist=Math.sqrt(dx*dx+dy*dy);let sx=d.cx,sy=d.cy,ex=d.lx,ey=d.ly;if(dist>.1){const nx=dx/dist,ny=dy/dist;sx=d.cx+nx*(d.r+4);sy=d.cy+ny*(d.r+4);ex=d.lx-nx*14;ey=d.ly-ny*14}d3.select(this).attr("x1",sx).attr("y1",sy).attr("x2",ex).attr("y2",ey)});
+      lBgs.each(function(d){const tw=getLabelWidth(d.name),th=getLabelHeight(d.name);d3.select(this).attr("x",d.lx-tw/2-3).attr("y",d.ly-th/2-2).attr("width",tw+6).attr("height",th+4)});
+      labels.each(function(d){const lines=getLabelLines(d.name);const t=d3.select(this).select(".label-text");if(lines.length===1){t.attr("x",d.lx).attr("y",d.ly+4)}else{t.attr("x",d.lx).attr("y",d.ly-(lines.length-1)*7.5+2);t.selectAll("tspan").attr("x",d.lx)}});
+    }).catch(err=>{document.getElementById("map").innerHTML="<p style='color:red;padding:20px;'>Error: "+err+"</p>"});
   </script>
 </body>
 </html>
